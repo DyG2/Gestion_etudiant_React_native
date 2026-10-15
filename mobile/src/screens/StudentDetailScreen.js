@@ -1,20 +1,45 @@
 import { useCallback, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import AppButton from '../components/AppButton';
-import Card from '../components/Card';
+import Avatar from '../components/Avatar';
+import EmptyState from '../components/EmptyState';
 import ErrorMessage from '../components/ErrorMessage';
 import InfoRow from '../components/InfoRow';
+import GlowScreen from '../components/GlowScreen';
 import Loader from '../components/Loader';
+import Pill from '../components/Pill';
+import UnderlineTabs from '../components/UnderlineTabs';
 import { useApiData } from '../hooks/useApiData';
 import { deleteStudent, getStudentById } from '../services/students.service';
-import { colors } from '../theme/colors';
+import { colors, getAccentColor } from '../theme/colors';
+import { fontSizes, spacing } from '../theme/spacing';
 import { formatDate, getFullName } from '../utils/format';
+
+const TABS = [
+  { key: 'infos', label: 'Infos' },
+  { key: 'activity', label: 'Activité' },
+];
+
+function StudentInfos({ student }) {
+  return (
+    <View>
+      <InfoRow label="Nom" value={student.nom} />
+      <InfoRow label="Prénom" value={student.prenom} />
+      <InfoRow label="Email" value={student.email} />
+      <InfoRow label="Filière" value={student.filiere} />
+      <InfoRow label="Inscrit le" value={formatDate(student.createdAt)} />
+    </View>
+  );
+}
 
 export default function StudentDetailScreen({ route, navigation }) {
   const { id } = route.params;
+  const insets = useSafeAreaInsets();
   const fetchStudent = useCallback(() => getStudentById(id), [id]);
   const { data: student, error, isLoading, retry } = useApiData(fetchStudent);
+  const [selectedTab, setSelectedTab] = useState('infos');
   const [deleteError, setDeleteError] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -47,27 +72,37 @@ export default function StudentDetailScreen({ route, navigation }) {
 
   if (error) {
     return (
-      <ScrollView style={styles.screen} contentContainerStyle={styles.centered}>
+      <View style={[styles.screen, styles.errorContainer]}>
         <ErrorMessage message={error} onRetry={retry} />
-      </ScrollView>
+      </View>
     );
   }
 
+  const fullName = getFullName(student);
+
   return (
-    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
-      <Text style={styles.name}>{getFullName(student)}</Text>
+    <GlowScreen subtle>
+      <ScrollView contentContainerStyle={styles.content}>
+        <View style={styles.identity}>
+          <Avatar name={fullName} size={88} />
+          <Text style={styles.name}>{fullName}</Text>
+          <Pill label={student.filiere} dotColor={getAccentColor(student.filiere)} />
+        </View>
 
-      <Card>
-        <InfoRow label="Nom" value={student.nom} />
-        <InfoRow label="Prénom" value={student.prenom} />
-        <InfoRow label="Email" value={student.email} />
-        <InfoRow label="Filière" value={student.filiere} />
-        <InfoRow label="Inscrit le" value={formatDate(student.createdAt)} />
-      </Card>
+        <UnderlineTabs tabs={TABS} selectedKey={selectedTab} onSelect={setSelectedTab} />
 
-      <ErrorMessage message={deleteError} />
-      <AppButton title="Supprimer" variant="danger" onPress={confirmDelete} isLoading={isDeleting} />
-    </ScrollView>
+        {selectedTab === 'infos' ? (
+          <StudentInfos student={student} />
+        ) : (
+          <EmptyState message="Bientôt disponible" icon="time-outline" />
+        )}
+      </ScrollView>
+
+      <View style={[styles.footer, { paddingBottom: spacing.md + insets.bottom }]}>
+        <ErrorMessage message={deleteError} />
+        <AppButton title="Supprimer" variant="danger" onPress={confirmDelete} isLoading={isDeleting} />
+      </View>
+    </GlowScreen>
   );
 }
 
@@ -76,18 +111,30 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
-    gap: 16,
-    padding: 24,
-  },
-  centered: {
-    flexGrow: 1,
+  errorContainer: {
     justifyContent: 'center',
-    padding: 24,
+    padding: spacing.screen,
+  },
+  content: {
+    flexGrow: 1,
+    gap: spacing.md,
+    padding: spacing.screen,
+  },
+  identity: {
+    alignItems: 'center',
+    gap: spacing.xs,
+    paddingVertical: spacing.md,
   },
   name: {
-    fontSize: 24,
+    fontSize: fontSizes.title,
     fontWeight: '700',
     color: colors.text,
+    textAlign: 'center',
+  },
+  footer: {
+    paddingHorizontal: spacing.screen,
+    paddingTop: spacing.sm,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
   },
 });

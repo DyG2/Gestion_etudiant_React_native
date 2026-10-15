@@ -1,15 +1,23 @@
-import { FlatList, StyleSheet, View } from 'react-native';
+import { useMemo, useState } from 'react';
+import { FlatList, RefreshControl, StyleSheet, View } from 'react-native';
 
 import EmptyState from '../components/EmptyState';
 import ErrorMessage from '../components/ErrorMessage';
+import GlowScreen from '../components/GlowScreen';
 import Loader from '../components/Loader';
+import SearchBar from '../components/SearchBar';
 import StudentCard from '../components/StudentCard';
 import { useApiData } from '../hooks/useApiData';
 import { getStudents } from '../services/students.service';
 import { colors } from '../theme/colors';
+import { spacing } from '../theme/spacing';
+import { filterByName } from '../utils/students';
 
 export default function StudentListScreen({ navigation }) {
   const { data: students, error, isLoading, isRefreshing, retry, refresh } = useApiData(getStudents);
+  const [query, setQuery] = useState('');
+
+  const visibleStudents = useMemo(() => (students ? filterByName(students, query) : []), [students, query]);
 
   if (isLoading) {
     return <Loader />;
@@ -17,29 +25,45 @@ export default function StudentListScreen({ navigation }) {
 
   if (error) {
     return (
-      <View style={styles.errorContainer}>
+      <View style={[styles.screen, styles.errorContainer]}>
         <ErrorMessage message={error} onRetry={retry} />
       </View>
     );
   }
 
+  const emptyMessage = query.trim()
+    ? `Aucun étudiant ne correspond à « ${query.trim()} ».`
+    : 'Aucun étudiant enregistré pour le moment.';
+
   return (
-    <FlatList
-      style={styles.screen}
-      contentContainerStyle={styles.content}
-      data={students}
-      keyExtractor={(student) => String(student.id)}
-      renderItem={({ item }) => (
-        <StudentCard
-          student={item}
-          onPress={() => navigation.navigate('StudentDetail', { id: item.id })}
-        />
-      )}
-      ItemSeparatorComponent={Separator}
-      ListEmptyComponent={<EmptyState message="Aucun étudiant enregistré pour le moment." />}
-      refreshing={isRefreshing}
-      onRefresh={refresh}
-    />
+    <GlowScreen subtle>
+      <View style={styles.searchContainer}>
+        <SearchBar value={query} onChangeText={setQuery} placeholder="Rechercher par nom" />
+      </View>
+      <FlatList
+        contentContainerStyle={styles.list}
+        data={visibleStudents}
+        keyExtractor={(student) => String(student.id)}
+        renderItem={({ item }) => (
+          <StudentCard
+            student={item}
+            onPress={() => navigation.navigate('StudentDetail', { id: item.id })}
+          />
+        )}
+        ItemSeparatorComponent={Separator}
+        ListEmptyComponent={<EmptyState message={emptyMessage} />}
+        keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={refresh}
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.surface}
+          />
+        }
+      />
+    </GlowScreen>
   );
 }
 
@@ -52,17 +76,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
   },
-  content: {
+  errorContainer: {
+    justifyContent: 'center',
+    padding: spacing.screen,
+  },
+  searchContainer: {
+    paddingHorizontal: spacing.screen,
+    paddingBottom: spacing.xs,
+  },
+  list: {
     flexGrow: 1,
-    padding: 16,
+    padding: spacing.screen,
   },
   separator: {
-    height: 12,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: colors.background,
+    height: spacing.sm,
   },
 });

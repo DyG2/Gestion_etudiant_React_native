@@ -1,21 +1,33 @@
+import { Ionicons } from '@expo/vector-icons';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/colors';
+import { fontSizes, radius, spacing } from '../theme/spacing';
 import { getFullName } from '../utils/format';
+import Avatar from './Avatar';
+import Pill from './Pill';
 
-// Carte d'un étudiant dans la liste
+// Ligne d'un étudiant dans la liste
 export default function StudentCard({ student, onPress }) {
+  const fullName = getFullName(student);
+
   return (
     <Pressable
       onPress={onPress}
       accessibilityRole="button"
       style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
     >
+      <Avatar name={fullName} />
       <View style={styles.identity}>
-        <Text style={styles.name}>{getFullName(student)}</Text>
-        <Text style={styles.email}>{student.email}</Text>
+        <Text style={styles.name} numberOfLines={1}>
+          {fullName}
+        </Text>
+        <Text style={styles.email} numberOfLines={1}>
+          {student.email}
+        </Text>
+        <Pill label={student.filiere} />
       </View>
-      <Text style={styles.badge}>{student.filiere}</Text>
+      <Ionicons name="chevron-forward" size={20} color={colors.textSecondary} />
     </Pressable>
   );
 }
@@ -24,35 +36,25 @@ const styles = StyleSheet.create({
   card: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
-    padding: 16,
-    borderRadius: 12,
+    gap: spacing.sm,
+    padding: spacing.md,
+    borderRadius: radius.card,
     backgroundColor: colors.surface,
   },
   cardPressed: {
-    backgroundColor: colors.surfacePressed,
+    backgroundColor: colors.surfaceAlt,
   },
   identity: {
     flex: 1,
+    gap: spacing.xs / 2,
   },
   name: {
-    fontSize: 16,
+    fontSize: fontSizes.body,
     fontWeight: '600',
     color: colors.text,
   },
   email: {
-    marginTop: 2,
-    fontSize: 14,
-    color: colors.textMuted,
-  },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 999,
-    overflow: 'hidden',
-    backgroundColor: colors.primaryLight,
-    fontSize: 12,
-    fontWeight: '600',
-    color: colors.primary,
+    fontSize: fontSizes.small,
+    color: colors.textSecondary,
   },
 });

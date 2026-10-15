@@ -18,5 +18,10 @@ export function useForm(initialValues, validate) {
     return !hasErrors(nextErrors);
   };
 
-  return { values, errors, setField, validateForm };
+  const resetForm = useCallback(() => {
+    setValues(initialValues);
+    setErrors({});
+  }, [initialValues]);
+
+  return { values, errors, setField, validateForm, resetForm };
 }

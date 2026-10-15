@@ -1,8 +1,9 @@
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/colors';
+import { fontSizes, spacing } from '../theme/spacing';
 
-// Ligne « libellé : valeur » des écrans de détail
+// Ligne « libellé / valeur » séparée par un trait fin
 export default function InfoRow({ label, value }) {
   return (
     <View style={styles.row}>
@@ -14,17 +15,22 @@ export default function InfoRow({ label, value }) {
 
 const styles = StyleSheet.create({
   row: {
-    paddingVertical: 12,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    gap: spacing.md,
+    paddingVertical: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: colors.border,
   },
   label: {
-    marginBottom: 2,
-    fontSize: 13,
-    color: colors.textMuted,
+    fontSize: fontSizes.small,
+    color: colors.textSecondary,
   },
   value: {
-    fontSize: 16,
+    flexShrink: 1,
+    fontSize: fontSizes.body,
     color: colors.text,
+    textAlign: 'right',
   },
 });

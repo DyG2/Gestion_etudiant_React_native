@@ -1,16 +1,34 @@
+import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { StyleSheet, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
 import AppButton from '../components/AppButton';
+import Card from '../components/Card';
 import ErrorMessage from '../components/ErrorMessage';
 import FormInput from '../components/FormInput';
 import FormLayout from '../components/FormLayout';
+import GlowScreen from '../components/GlowScreen';
 import { useAuth } from '../context/AuthContext';
 import { useForm } from '../hooks/useForm';
 import { colors } from '../theme/colors';
+import { fontSizes, radius, spacing } from '../theme/spacing';
 import { validateLogin } from '../utils/validation';
 
 const INITIAL_VALUES = { email: '', password: '' };
+
+function Brand() {
+  return (
+    <View style={styles.brand}>
+      <View style={styles.logoRing}>
+        <View style={styles.logo}>
+          <Ionicons name="school" size={36} color={colors.text} />
+        </View>
+      </View>
+      <Text style={styles.title}>Etu-tsika</Text>
+      <Text style={styles.subtitle}>Gérez vos étudiants simplement, où que vous soyez.</Text>
+    </View>
+  );
+}
 
 export default function LoginScreen() {
   const { login } = useAuth();
@@ -34,49 +52,108 @@ export default function LoginScreen() {
   };
 
   return (
-    <FormLayout>
-      <Text style={styles.title}>Gestion des étudiants</Text>
-      <Text style={styles.subtitle}>Connectez-vous pour continuer</Text>
+    <GlowScreen>
+      <FormLayout centered transparent>
+        <Brand />
 
-      <ErrorMessage message={apiError} />
+        <Card style={styles.formCard}>
+          <Text style={styles.formTitle}>Connexion</Text>
+          <Text style={styles.formHint}>Saisissez vos identifiants pour continuer.</Text>
 
-      <FormInput
-        label="Email"
-        value={values.email}
-        onChangeText={(text) => setField('email', text)}
-        error={errors.email}
-        placeholder="exemple@domaine.mg"
-        keyboardType="email-address"
-        autoCapitalize="none"
-        autoComplete="email"
-      />
-      <FormInput
-        label="Mot de passe"
-        value={values.password}
-        onChangeText={(text) => setField('password', text)}
-        error={errors.password}
-        placeholder="Votre mot de passe"
-        secureTextEntry
-        onSubmitEditing={handleSubmit}
-      />
+          <ErrorMessage message={apiError} />
 
-      <AppButton title="Se connecter" onPress={handleSubmit} isLoading={isSubmitting} />
-    </FormLayout>
+          <FormInput
+            label="Email"
+            icon="mail-outline"
+            value={values.email}
+            onChangeText={(text) => setField('email', text)}
+            error={errors.email}
+            placeholder="exemple@domaine.mg"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            autoComplete="email"
+          />
+          <FormInput
+            label="Mot de passe"
+            icon="lock-closed-outline"
+            value={values.password}
+            onChangeText={(text) => setField('password', text)}
+            error={errors.password}
+            placeholder="Votre mot de passe"
+            secureTextEntry
+            onSubmitEditing={handleSubmit}
+          />
+
+          <AppButton title="Se connecter" onPress={handleSubmit} isLoading={isSubmitting} />
+        </Card>
+
+        <View style={styles.footer}>
+          <Ionicons name="shield-checkmark-outline" size={14} color={colors.textSecondary} />
+          <Text style={styles.footerText}>Connexion sécurisée</Text>
+        </View>
+      </FormLayout>
+    </GlowScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  brand: {
+    alignItems: 'center',
+    gap: spacing.xs,
+    marginBottom: spacing.lg,
+  },
+  logoRing: {
+    padding: spacing.xs,
+    marginBottom: spacing.xs,
+    borderWidth: 1,
+    borderColor: colors.primaryRing,
+    borderRadius: radius.card + spacing.xs,
+    backgroundColor: colors.primaryGlow,
+  },
+  logo: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: 72,
+    height: 72,
+    borderRadius: radius.card,
+    backgroundColor: colors.primary,
+  },
   title: {
-    fontSize: 26,
-    fontWeight: '700',
+    fontSize: 36,
+    fontWeight: '800',
+    letterSpacing: 0.5,
     color: colors.text,
-    textAlign: 'center',
   },
   subtitle: {
-    marginTop: 4,
-    marginBottom: 32,
-    fontSize: 15,
-    color: colors.textMuted,
+    fontSize: fontSizes.small,
+    color: colors.textSecondary,
     textAlign: 'center',
+  },
+  formCard: {
+    padding: spacing.lg,
+    borderWidth: StyleSheet.hairlineWidth,
+    borderColor: colors.border,
+  },
+  formTitle: {
+    fontSize: fontSizes.sectionTitle,
+    fontWeight: '700',
+    color: colors.text,
+  },
+  formHint: {
+    marginTop: spacing.xs / 2,
+    marginBottom: spacing.md,
+    fontSize: fontSizes.small,
+    color: colors.textSecondary,
+  },
+  footer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: spacing.xs / 2,
+    marginTop: spacing.lg,
+  },
+  footerText: {
+    fontSize: fontSizes.caption,
+    color: colors.textSecondary,
   },
 });

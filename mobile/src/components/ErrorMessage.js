@@ -1,6 +1,8 @@
+import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { colors } from '../theme/colors';
+import { fontSizes, radius, spacing } from '../theme/spacing';
 import AppButton from './AppButton';
 
 // Affiche une erreur, avec un bouton « Réessayer » si onRetry est fourni
@@ -11,7 +13,10 @@ export default function ErrorMessage({ message, onRetry }) {
 
   return (
     <View style={styles.container} accessibilityRole="alert">
-      <Text style={styles.message}>{message}</Text>
+      <View style={styles.row}>
+        <Ionicons name="alert-circle" size={20} color={colors.danger} />
+        <Text style={styles.message}>{message}</Text>
+      </View>
       {onRetry ? <AppButton title="Réessayer" variant="secondary" onPress={onRetry} /> : null}
     </View>
   );
@@ -19,15 +24,20 @@ export default function ErrorMessage({ message, onRetry }) {
 
 const styles = StyleSheet.create({
   container: {
-    gap: 12,
-    padding: 12,
-    marginBottom: 16,
-    borderRadius: 10,
-    backgroundColor: colors.dangerLight,
+    gap: spacing.sm,
+    padding: spacing.sm,
+    marginBottom: spacing.md,
+    borderRadius: radius.control,
+    backgroundColor: colors.dangerMuted,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.xs,
   },
   message: {
-    fontSize: 14,
+    flex: 1,
+    fontSize: fontSizes.small,
     color: colors.danger,
-    textAlign: 'center',
   },
 });

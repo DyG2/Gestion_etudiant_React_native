@@ -1,14 +1,15 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
 import { colors } from '../theme/colors';
+import { fontSizes, radius, spacing } from '../theme/spacing';
 
 const VARIANTS = {
-  primary: { background: colors.primary, pressed: colors.primaryPressed, text: colors.textOnPrimary },
-  secondary: { background: colors.surface, pressed: colors.surfacePressed, text: colors.primary },
-  danger: { background: colors.danger, pressed: colors.dangerPressed, text: colors.textOnPrimary },
+  primary: { background: colors.primary, pressed: colors.primaryPressed },
+  secondary: { background: colors.surfaceAlt, pressed: colors.surfaceHighlight },
+  danger: { background: colors.danger, pressed: colors.dangerPressed },
 };
 
-// Bouton principal de l'application ; isLoading le désactive pendant un envoi
+// Bouton pleine largeur ; isLoading le désactive pendant un envoi
 export default function AppButton({ title, onPress, variant = 'primary', disabled = false, isLoading = false }) {
   const palette = VARIANTS[variant];
   const isDisabled = disabled || isLoading;
@@ -22,36 +23,29 @@ export default function AppButton({ title, onPress, variant = 'primary', disable
       style={({ pressed }) => [
         styles.button,
         { backgroundColor: pressed ? palette.pressed : palette.background },
-        variant === 'secondary' && styles.outlined,
         isDisabled && styles.disabled,
       ]}
     >
-      {isLoading ? (
-        <ActivityIndicator color={palette.text} />
-      ) : (
-        <Text style={[styles.title, { color: palette.text }]}>{title}</Text>
-      )}
+      {isLoading ? <ActivityIndicator color={colors.text} /> : <Text style={styles.title}>{title}</Text>}
     </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   button: {
+    alignSelf: 'stretch',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 20,
-    borderRadius: 10,
-  },
-  outlined: {
-    borderWidth: 1,
-    borderColor: colors.primary,
+    height: 52,
+    paddingHorizontal: spacing.md,
+    borderRadius: radius.control,
   },
   disabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
   title: {
-    fontSize: 16,
+    fontSize: fontSizes.body,
     fontWeight: '600',
+    color: colors.text,
   },
 });

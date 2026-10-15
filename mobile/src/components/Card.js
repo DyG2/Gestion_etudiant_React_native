@@ -1,16 +1,17 @@
 import { StyleSheet, View } from 'react-native';
 
 import { colors } from '../theme/colors';
+import { radius, spacing } from '../theme/spacing';
 
-// Bloc blanc arrondi servant de fond aux contenus
-export default function Card({ children }) {
-  return <View style={styles.card}>{children}</View>;
+// Bloc de fond « surface » ; style permet d'ajuster la mise en page
+export default function Card({ children, style }) {
+  return <View style={[styles.card, style]}>{children}</View>;
 }
 
 const styles = StyleSheet.create({
   card: {
-    padding: 16,
-    borderRadius: 12,
+    padding: spacing.md,
+    borderRadius: radius.card,
     backgroundColor: colors.surface,
   },
 });
